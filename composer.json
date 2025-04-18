@@ -1,0 +1,23 @@
+{
+  "name": "airmole/tjustb-opacsys",
+  "description": "Tianjin college,USTB OPAC(Online Public Access Catalogue) system HTTP client",
+  "type": "library",
+  "require": {
+    "php": ">=8.0",
+    "ext-curl": "*",
+    "ext-json": "*",
+    "imangazaliev/didom": "^2.0"
+  },
+  "license": "GPL-3.0-or-later",
+  "authors": [
+    {
+      "name": "Airmole",
+      "email": "admin@airmole.cn"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Airmole\\TjustbOpacsys\\": "src/"
+    }
+  }
+}
