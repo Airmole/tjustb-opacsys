@@ -27,41 +27,43 @@ class Popular extends Base
         if ($html['code'] !== 200) throw new Exception('获取失败：'. $html['code'] . $html['data']);
         $document = new Document($html['data']);
 
-        // 热门借阅
-        $popularLendTitle = $document->first('#search_container_right')->first('h3')->text();
-        $popularLendItems = $document->first('#search_container_right')->find('li');
         $popularLendBooks = [];
-        foreach ($popularLendItems as $item) {
-            $url = $item->first('a')->getAttribute('href');
-            preg_match('/marc_no=(.*)?/', $url, $marcNo);
-            $popularLendBooks[] = [
-                'title' => $item->first('a')->text(),
-                'url' => $url,
-                'marcNo' => $marcNo[1] ?: '',
-            ];
+        // 热门借阅
+        if ($document->has('#search_container_right')) {
+            $popularLendTitle = $document->first('#search_container_right')->first('h3')->text();
+            $popularLendItems = $document->first('#search_container_right')->find('li');
+            foreach ($popularLendItems as $item) {
+                $url = $item->first('a')->getAttribute('href');
+                preg_match('/marc_no=(.*)?/', $url, $marcNo);
+                $popularLendBooks[] = [
+                    'title' => $item->first('a')->text(),
+                    'marcNo' => $marcNo[1] ?: '',
+                ];
+            }
         }
 
         // 热门图书
-        $popularBookTitle = $document->first('#search_container_center')->first('h3')->text();
-        $popularBookItems = $document->first('#search_container_center')->find('li');
         $popularBooks = [];
-        foreach ($popularBookItems as $item) {
-            $url = $item->first('a')->getAttribute('href');
-            preg_match('/marc_no=(.*)?/', $url, $marcNo);
-            $popularBooks[] = [
-                'title' => $item->first('a')->text(),
-                'url' => $url,
-                'marcNo' => $marcNo[1] ?: '',
-            ];
+        if ($document->has('#search_container_center')) {
+            $popularBookTitle = $document->first('#search_container_center')->first('h3')->text();
+            $popularBookItems = $document->first('#search_container_center')->find('li');
+            foreach ($popularBookItems as $item) {
+                $url = $item->first('a')->getAttribute('href');
+                preg_match('/marc_no=(.*)?/', $url, $marcNo);
+                $popularBooks[] = [
+                    'title' => $item->first('a')->text(),
+                    'marcNo' => $marcNo[1] ?: '',
+                ];
+            }
         }
 
         return [
             'lend' => [
-                'title' => $popularLendTitle,
+                'title' => $popularLendTitle ?: '',
                 'books' => $popularLendBooks,
             ],
             'book' => [
-                'title' => $popularBookTitle,
+                'title' => $popularBookTitle ?: '',
                 'books' => $popularBooks,
             ],
         ];
@@ -101,7 +103,7 @@ class Popular extends Base
      * @throws Exception
      * @throws \DiDom\Exceptions\InvalidSelectorException
      */
-    public function keywordTopTen()
+    public function topTenKeyword()
     {
         $html = $this->httpGet('/opac/ajax_topten_adv.php');
         if ($html['code'] !== 200) throw new Exception('获取失败：'. $html['code'] . $html['data']);
@@ -115,6 +117,34 @@ class Popular extends Base
                 'url' => $link->getAttribute('href'),
             ];
         }
+        return $keywords;
+    }
+
+    /**
+     * 获取最近30天热门关键词top100
+     * @return array
+     * @throws Exception
+     * @throws \DiDom\Exceptions\InvalidSelectorException
+     */
+    public function topKeyword(): array
+    {
+        $html = $this->httpGet('/opac/top100_adv.php');
+        if ($html['code'] !== 200) throw new Exception('获取失败：'. $html['code'] . $html['data']);
+        $document = new Document($html['data']);
+        $node = $document->first('.thinBorder')->find('a');
+        $keywords = [];
+        foreach ($node as $link) {
+            $text = $link->text();
+            $keyword = preg_replace('/\(\d+\)$/', '', $text);
+            preg_match('/\((\d+)\)$/', $text, $count);
+            $count = $count[1] ?: 0;
+            $keywords[] = [
+                'keyword' => trim($keyword),
+                'count' => $count,
+                'url' => $link->getAttribute('href'),
+            ];
+        }
+
         return $keywords;
     }
 

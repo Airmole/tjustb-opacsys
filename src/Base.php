@@ -16,6 +16,11 @@ class Base
     public string $opacsysUrl;
 
     /**
+     * @var string 代理地址
+     */
+    public string $proxy;
+
+    /**
      * @var string 配置文件路径
      */
     public string $configPath;
@@ -23,14 +28,16 @@ class Base
     /**
      * @var string 默认OPAC系统URL
      */
-    public const DEFAULT_OPACSYS_URL = 'http://opac.bkty.top';  // http://10.1.254.98:82
+    public const DEFAULT_OPACSYS_URL = 'http://10.1.254.98:82';  // http://10.1.254.98:82
 
     public function __construct()
     {
-        // 未配置教务URL 自动配置
-        if (empty($this->opacsysUrl)) $this->setOpacsysUrl();
         // 设置默认配置文件
         if (empty($this->configPath)) $this->setConfigPath();
+        // 未配置教务URL 自动配置
+        if (empty($this->opacsysUrl)) $this->setOpacsysUrl();
+        // 设置代理
+        $this->proxy = $this->getConfig('OPACSYS_PROXY', '');
     }
 
     /**
@@ -41,6 +48,8 @@ class Base
     public function setOpacsysUrl(string $url = self::DEFAULT_OPACSYS_URL): void
     {
         if (empty($url)) $url = self::DEFAULT_OPACSYS_URL;
+        $configOpacsysUrl = $this->getConfig('OPACSYS_URL', '');
+        if (!empty($configOpacsysUrl)) $url = $configOpacsysUrl;
         $this->opacsysUrl = $url;
     }
 
@@ -115,6 +124,7 @@ class Base
      * @param int $timeout 请求超时时间（秒）
      * @param bool $showHeader 返回信息包含Header
      * @return array
+     * @throws Exception
      */
     public function httpGet(
         string $url,
@@ -138,24 +148,90 @@ class Base
         if (!empty($referer)) $headers[] = "Referer: {$referer}";
         if (!empty($cookie)) $headers[] = "Cookie: {$cookie}";
         $timeout = $this->getConfig('OPACSYS_TIMEOUT', $timeout);
-        $ch = curl_init();
-        curl_setopt_array($ch, array(
-            CURLOPT_URL            => $url,
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_ENCODING, 'gzip, deflate');
+        curl_setopt($curl, CURLOPT_NOSIGNAL, 1);
+        curl_setopt($curl, CURLOPT_MAXREDIRS, 10);
+        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($curl, CURLOPT_TIMEOUT, $timeout); //设置超时时间
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers); //设置请求头
+        curl_setopt($curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false); //不验证证书
+        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'GET');
+        curl_setopt($curl, CURLOPT_HEADER, $showHeader);
+        if (!empty($this->proxy)) curl_setopt($curl, CURLOPT_PROXY, $this->proxy);
+        $response = curl_exec($curl);
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        curl_close($curl);
+        if ($httpCode == 0 || $httpCode == 56) throw new Exception('请求超时' . $httpCode);
+        return ['code' => (int)$httpCode, 'data' => $response];
+    }
+
+    /**
+     * POST 请求
+     * @param string $url 请求URL
+     * @param mixed $body 请求体
+     * @param string $cookie 携带cookie
+     * @param string $referer header->referer
+     * @param int $timeout 请求超时时间（秒）
+     * @return array
+     * @throws Exception
+     */
+    public function httpPost(
+        string $url,
+        mixed $body = '',
+        string $cookie = '',
+        string $referer = '',
+        int    $timeout = 10
+    ): array
+    {
+        if (!str_contains($url, 'http://') && !str_contains($url, 'https://')) {
+            $url = $this->opacsysUrl . $url;
+        }
+
+        $headers = [
+            'Accept: application/json, text/javascript, */*; q=0.01',
+            'Accept-Language: zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
+            'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0',
+            'X-Requested-With: XMLHttpRequest',
+        ];
+
+        // body传入对象或数组，则自动转换为json格式
+        if (is_object($body) || is_array($body)) {
+            $body = json_encode($body);
+            $headers[] = 'Content-Type: application/json';
+        }
+        // 判断字符串是否为json格式
+        json_decode($body);
+        if (json_last_error() === JSON_ERROR_NONE) {
+            $headers[] = 'Content-Type: application/json';
+        }
+
+        if (!empty($referer)) $headers[] = "Referer: {$referer}";
+        if (!empty($cookie)) $headers[] = "Cookie: {$cookie}";
+
+        $timeout = $this->getConfig('OPACSYS_TIMEOUT', $timeout);
+        $curlOption = [
+            CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING       => 'gzip, deflate',
-            CURLOPT_MAXREDIRS      => 10,
-            CURLOPT_TIMEOUT        => $timeout,
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_ENCODING => 'gzip, deflate',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => $timeout,
             CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST  => 'GET',
-            CURLOPT_HTTPHEADER     => $headers,
-            CURLOPT_HEADER         => $showHeader,
-        ));
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => $body,
+            CURLOPT_HTTPHEADER => $headers
+        ];
+        if (!empty($this->proxy)) $curlOption[CURLOPT_PROXY] = $this->proxy;
+        $curl = curl_init();
+        curl_setopt_array($curl, $curlOption);
+        $response = curl_exec($curl);
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        curl_close($curl);
         if ($httpCode == 0 || $httpCode == 56) throw new Exception('请求超时');
         return ['code' => (int)$httpCode, 'data' => $response];
     }
