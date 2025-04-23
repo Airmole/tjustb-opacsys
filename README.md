@@ -34,7 +34,7 @@ class Test
 ```
 
 ## API文档
-- [http://tjustb-opacsys.ustb.tj.cn/](http://tjustb-opacsys.ustb.tj.cn/)
+- [https://tjustb-opacsys.ustb.tj.cn/](https://tjustb-opacsys.ustb.tj.cn/)
 
 ## 注意事项
 
