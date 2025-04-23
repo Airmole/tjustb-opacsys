@@ -6,6 +6,12 @@ tjustb图书馆OPAC系统客户端（http://opac.bkty.top）
 
 - PHP >= 8.0
 
+# Installation
+
+```shell
+composer require "airmole/tjustb-opacsys"
+```
+
 # Config
 
 引用项目根目录下`.env`文件可配置以下配置项参数：
@@ -33,10 +39,10 @@ class Test
 }
 ```
 
-## API文档
+## Document
 - [https://tjustb-opacsys.ustb.tj.cn/](https://tjustb-opacsys.ustb.tj.cn/)
 
-## 注意事项
+## Note
 
 - 建议配合[shellbox-aTrust](https://github.com/Airmole/shellbox-aTrust)走内网代理更稳定
 - 图书marcNo码并非永久固定有效，不建议长期使用marcNo码作为键名存储数据
