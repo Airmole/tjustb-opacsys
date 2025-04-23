@@ -33,6 +33,9 @@ class Test
 }
 ```
 
+## API文档
+- [http://tjustb-opacsys.ustb.tj.cn/](http://tjustb-opacsys.ustb.tj.cn/)
+
 ## 注意事项
 
 - 建议配合[shellbox-aTrust](https://github.com/Airmole/shellbox-aTrust)走内网代理更稳定
