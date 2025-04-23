@@ -107,10 +107,11 @@ class Popular extends Base
     {
         $html = $this->httpGet('/opac/ajax_topten_adv.php');
         if ($html['code'] !== 200) throw new Exception('获取失败：'. $html['code'] . $html['data']);
+        $keywords = [];
+        if (empty($this->stripHtmlTagAndBlankspace($html['data']))) return [];
         $document = new Document($html['data']);
 
         $links = $document->find('a');
-        $keywords = [];
         foreach ($links as $link) {
             $keywords[] = [
                 'keyword' => $link->text(),

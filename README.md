@@ -33,7 +33,11 @@ class Test
 }
 ```
 
+## 注意事项
+
+- 建议配合[shellbox-aTrust](https://github.com/Airmole/shellbox-aTrust)走内网代理更稳定
+- 图书marcNo码并非永久固定有效，不建议长期使用marcNo码作为键名存储数据
 
 ## Suitable
 
-以本校2江苏汇文OPAC`v5.6.1.220715`抓包分析开发而来，其余院校版本未测试可用性无法保证。各功能代码略有不同，如果您有类似需求，可[联系我](mailto:admin@airmole.cn)有偿开发专用特供版本。
+以本校江苏汇文OPAC`v5.6.1.220715`抓包分析开发而来，其余院校版本未测试可用性无法保证。各功能代码略有不同，如果您有类似需求，可[联系我](mailto:admin@airmole.cn)有偿开发专用特供版本。
