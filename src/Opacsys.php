@@ -262,6 +262,19 @@ class Opacsys
     }
 
     /**
+     * 同作者图书
+     * @param string $marcNo
+     * @return array
+     * @throws Exception\Exception
+     * @throws \DiDom\Exceptions\InvalidSelectorException
+     */
+    public function sameAuthor(string $marcNo): array
+    {
+        $search = new Search();
+        return $search->sameAuthor($marcNo);
+    }
+
+    /**
      * 借阅趋势
      * @param string $marcNo
      * @return array
