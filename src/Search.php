@@ -510,7 +510,7 @@ class Search extends Base
                 'volume' => $tdNodes[2]->text(),
                 'location' => $this->stripHtmlTagAndBlankspace($tdNodes[3]->text()),
                 'status' => trim($tdNodes[4]->text()),
-                'returnLocation' => count($tdNodes) >= 5 ? $tdNodes[5]->text() : '',
+                'returnLocation' => count($tdNodes) > 5 ? $tdNodes[5]->text() : '',
             ];
         }
 
