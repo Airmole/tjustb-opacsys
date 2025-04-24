@@ -503,7 +503,10 @@ class Search extends Base
         $trNodes = $collectionNode->find('tr');
         foreach ($trNodes as $trIndex => $trNode) {
             if ($trIndex === 0) continue;
+            if (str_contains($trNode->text(), '此书刊没有复本')) continue;
+            if (str_contains($trNode->text(), '此书刊可能正在订购中或者处理中')) continue;
             $tdNodes = $trNode->find('td');
+            if (!in_array(count($tdNodes), [5, 6])) continue;
             $collection[] = [
                 'callNo' => $tdNodes[0]->text(),
                 'barCode' => $tdNodes[1]->text(),
