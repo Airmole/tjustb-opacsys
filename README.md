@@ -42,6 +42,27 @@ class Test
 ## Document
 - [https://tjustb-opacsys.ustb.tj.cn/](https://tjustb-opacsys.ustb.tj.cn/)
 
+## LocalDebug
+
+在引入项目时，在`composer.json`中加入以下代码
+
+```json
+    "repositories": {
+        "airmole/tjustb-edusys": {
+            "type": "path",
+            "url": "../tjustb-opacsys",
+            "options": {
+                "symlink": true
+            }
+        }
+    }
+```
+
+composer执行命令：
+```shell
+composer require "airmole/tjustb-opacsys" @dev
+```
+
 ## Note
 
 - 建议配合[shellbox-aTrust](https://github.com/Airmole/shellbox-aTrust)走内网代理更稳定

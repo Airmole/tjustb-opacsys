@@ -504,14 +504,13 @@ class Search extends Base
         foreach ($trNodes as $trIndex => $trNode) {
             if ($trIndex === 0) continue;
             $tdNodes = $trNode->find('td');
-            if (count($tdNodes) < 6) continue;
             $collection[] = [
                 'callNo' => $tdNodes[0]->text(),
                 'barCode' => $tdNodes[1]->text(),
                 'volume' => $tdNodes[2]->text(),
                 'location' => $this->stripHtmlTagAndBlankspace($tdNodes[3]->text()),
                 'status' => trim($tdNodes[4]->text()),
-                'returnLocation' => $tdNodes[5]->text(),
+                'returnLocation' => count($tdNodes) >= 5 ? $tdNodes[5]->text() : '',
             ];
         }
 
@@ -664,6 +663,7 @@ class Search extends Base
         $books = [];
         $trNodes = $dom->find('tr');
         foreach ($trNodes as $trIndex => $trNode) {
+            if (str_contains($trNode->text(), '暂无数据')) continue;
             if ($trIndex === 0) continue;
             $tdNodes = $trNode->find('td');
             $link = $tdNodes[0]->first('a')->attr('href');
