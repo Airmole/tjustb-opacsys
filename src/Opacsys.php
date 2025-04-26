@@ -327,4 +327,17 @@ class Opacsys
         return $infoPublish->exceedFine($page);
     }
 
+    /**
+     * 书架详情
+     * @param string $shelfId 书架ID
+     * @return array
+     * @throws Exception\Exception
+     * @throws \DiDom\Exceptions\InvalidSelectorException
+     */
+    public function shelf(string $shelfId): array
+    {
+        $search = new Search();
+        return $search->shelf($shelfId);
+    }
+
 }

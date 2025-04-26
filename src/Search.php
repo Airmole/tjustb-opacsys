@@ -239,7 +239,7 @@ class Search extends Base
         int $pageSize = 20,
         string $secondaryKeyword = '',
         string $secondarySearchType = 'title'
-    )
+    ): array
     {
         if (is_string($search)) {
             $search = [
@@ -692,6 +692,54 @@ class Search extends Base
         $json = $this->httpGet("/opac/ajax_lend_trend.php?id=$marcNo");
         if ($json['code'] !== 200) throw new Exception('获取失败：' . $json['code'] . $json['data']);
         return json_decode($json['data'], true);
+    }
+
+    /**
+     * 书架详情
+     * @param string $shelfId 书架ID
+     * @return array
+     * @throws Exception
+     * @throws \DiDom\Exceptions\InvalidSelectorException
+     */
+    public function shelf(string $shelfId): array
+    {
+        $html = $this->httpGet("/opac/show_user_shelf.php?classid=$shelfId");
+        if ($html['code'] !== 200) throw new Exception('获取失败：' . $html['code'] . $html['data']);
+        $dom = new Document($html['data']);
+
+        $title = '';
+        $total = 0;
+        if ($dom->has('#info_navbar_search')) {
+            $fonts = $dom->first('#info_navbar_search')->find('font');
+            if (isset($fonts[0])) $title = $fonts[0]->text();
+            if (isset($fonts[1])) $total = intval($fonts[1]->text());
+        }
+
+        $books = [];
+        if ($dom->has('.table_line')) {
+            $trNodes = $dom->first('.table_line')->find('tr');
+            foreach ($trNodes as $trIndex => $trNode) {
+                if ($trIndex === 0) continue;
+                $tdNodes = $trNode->find('td');
+                if (count($tdNodes) !== 6) continue;
+                $marcNo = str_replace('item.php?marc_no=', '', $tdNodes[1]->first('a')->attr('href'));
+                $books[] = [
+                    'no' => $tdNodes[0]->text(),
+                    'title' => $tdNodes[1]->text(),
+                    'marcNo' => $marcNo,
+                    'author' => $tdNodes[2]->text(),
+                    'publisher' => $tdNodes[3]->text(),
+                    'publishDate' => $tdNodes[4]->text(),
+                    'callNo' => $tdNodes[5]->text(),
+                ];
+            }
+        }
+
+        return [
+            'title' => $title,
+            'total' => $total,
+            'books' => $books
+        ];
     }
 
 }
