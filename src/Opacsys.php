@@ -340,4 +340,16 @@ class Opacsys
         return $search->shelf($shelfId);
     }
 
+    /**
+     * 通过ISBN获取豆瓣ID
+     * @param string $isbn
+     * @return string
+     * @throws Exception\Exception
+     */
+    public function getDoubanIdByISBN(string $isbn): string
+    {
+        $search = new Search();
+        return $search->getDoubanIdByISBN($isbn);
+    }
+
 }

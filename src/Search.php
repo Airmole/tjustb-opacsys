@@ -742,4 +742,22 @@ class Search extends Base
         ];
     }
 
+    /**
+     * 通过ISBN获取豆瓣ID
+     * @param string $isbn
+     * @return string
+     * @throws Exception
+     */
+    public function getDoubanIdByISBN(string $isbn): string
+    {
+        if (empty($isbn)) return '';
+        $url = "https://book.douban.com/isbn/$isbn/";
+        $html = $this->httpGet($url, '', '', 10, true);
+
+        $doubanId = '';
+        $pattern = "/subject\/(\d*?)\//";
+        preg_match($pattern, $html['data'], $doubanId);
+        return $doubanId[1] ?? ($doubanId[0] ?? $doubanId);
+    }
+
 }
