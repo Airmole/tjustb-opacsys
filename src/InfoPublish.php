@@ -113,6 +113,9 @@ class InfoPublish extends Base
         if ($html['code'] != 200) throw new Exception('查询超期催还失败：' . $html['code'] . $html['data']);
         $dom = new Document($html['data']);
 
+
+        if (str_contains($dom->first('.panel1')->text(), '该读者不存在')) return [];
+
         $type = $dom->first('.panel1')->first('p')->firstChild()->text();
         $user = $dom->first('.panel1')->first('p')->first('font')->text();
         $bNodes = $dom->first('.panel1')->find('b');
