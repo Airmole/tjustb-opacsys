@@ -1,0 +1,291 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    ﻿<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="renderer" content="webkit">
+    <meta name="referrer" content="no-referrer" />
+    <!-- 主菜单 -->
+    <title>北京科技大学天津学院图书馆书目检索系统</title>
+    <link type="text/css" rel="stylesheet" href="../tpl/css/style.css">
+    <link type="text/css" rel="stylesheet" href="../tpl/css/mylib.css" />
+    <link type="text/css" rel="stylesheet" href="../tpl/css/ui-lightness/jquery-ui.css">
+    <link type="text/css" rel="stylesheet" href="../tpl/css/font-awesome.css">
+
+
+    <script  type="text/javascript" src="../tpl/js/jquery.js"></script>
+    <script  type="text/javascript" src="../tpl/js/jquery-ui.js"></script>
+    <script  type="text/javascript" src="../tpl/js/highlighter.js"></script>
+
+
+    <script type="text/javascript" src="../tpl/js/md5.js"></script>
+    <script type="text/javascript" src="../tpl/js/base64.js"></script>
+</head>
+<body>
+<div id="header_opac">
+    <h1 class="header_opac_img">
+        <div class="header_opac_logo">
+            北京科技大学天津学院图书馆书目检索系统<br>
+            <p>Online Public Access Catalogue</p>
+
+        </div>
+    </h1>
+    <div class="header_right header_right_top">
+        <p class="header_right_font">       </p>
+        <p style="margin-top: 60px;" class="header_right_font">
+            <select class="option" name="locale" size="1" style="width: 60px;"
+                    onchange="changeLocale(this.value);">
+                <option value='zh_CN' selected>中文</option><option value='en_US'>English</option>          </select>
+            | <a href="../opac/book_cart.php">暂存书架(<span id="bookcartCount">0</span>)
+        </a> | <font color="blue">孟凡宇</font> <strong><a href="../reader/logout.php" style="color:#ff0000;">注销</a></strong></p>
+    </div>
+</div>
+
+<div id="menubar">
+    <ul id="menu_top">
+        <li><a href="../opac/search_adv.php" target="_self">书目检索</a></li>
+        <li><a href="../top/top_lend.php" target="_self">热门推荐</a></li>
+        <li><a href="../browse/cls_browsing.php" target="_self">分类浏览</a></li>
+        <li><a href="../newbook/newbook_cls_browse.php" target="_self">新书通报</a></li>
+        <li><a href="../peri/peri_nav_e.php" target="_self">期刊导航</a></li>
+        <li><a href="../asord/asord_hist.php" target="_self">读者荐购</a></li>
+        <li><a href="../shelf/curriculum_browse.php" target="_self">学科参考</a></li>
+        <li><a href="../info/info_guide.php" target="_self">信息发布</a></li>
+        <li><a class="menu_top_on" style="color: #6C5B23;"
+               href="../reader/redr_info.php" target="_self">我的图书馆</a></li>
+        <div class="clear"></div>
+    </ul>
+</div>
+<div id="submenu">
+    <div class="clear"></div>
+</div>
+
+<script type="text/javascript">
+    function changeLocale(obj) {
+        $.ajax({
+            url: "../locale/ajax_change_locale.php",
+            data: "lan="+obj,
+            type: 'POST',
+            success: function(html){
+// 				  setTimeout(function(){  //使用  setTimeout（）方法设定定时2000毫秒
+// 					  window.location.reload(true);//页面刷新
+// 					  },500);
+                window.location.reload(true);
+            }
+        });
+    }
+
+</script>
+﻿		<script language="JavaScript" type="text/javascript">
+    $(function(){
+        $( "#dialog:ui-dialog" ).dialog( "destroy" );
+    });
+</script>
+
+<div id="mainbox">
+    <div id="container">
+        <div id="navsidebar">
+            <ul id="nav_mylib">
+                <li><a href="redr_info.php" >我的首页</a></li><li><a href="redr_info_rule.php" >证件信息</a></li><li id="nav_mylibhome"><a href="book_lst.php" >当前借阅</a></li><li><a href="book_hist.php" >借阅历史</a></li><li><a href="asord_lst.php" >荐购历史</a></li><li><a href="preg.php" >预约信息</a></li><li><a href="relegate.php" >委托信息</a></li><li><a href="book_shelf.php" >我的书架</a></li><li><a href="book_loss.php" >书刊遗失</a></li><li><a href="redr_lost.php" >读者挂失</a></li><li><a href="account.php" >账目清单</a></li><li><a href="fine_pec.php" >违章缴款</a></li><li><a href="book_rv.php" >我的书评</a></li><li><a href="search_hist.php" >检索历史</a></li><li><a href="reader_curriculum.php" >我的课程</a></li><li><a href="credit_detail.php" >我的积分</a></li>
+            </ul>
+        </div>
+
+        <div id="mylib_content" >
+            <div class="alert">
+                <strong>超期！不得续借！</strong>
+            </div>
+            <p style="text-align:center; font-size:14px; color:#F00;"></p>
+            <h2>当前借阅</h2>
+            <p style="margin:10px auto;">&nbsp;&nbsp;当前借阅( <b class="blue">11</b> ) / 最大借阅( <b class="blue">
+                20
+
+            </b> ) </p>
+
+            <table width="100%" border="0" cellpadding="5" cellspacing="1" bgcolor="#CCCCCC" class="table_line">
+                <tr>
+                    <td class="greytext">条码号</td>
+                    <td class="greytext">题名/责任者</td>
+                    <td class="greytext">借阅日期</td>
+                    <td class="greytext">应还日期</td>
+                    <td align="center" class="greytext">续借量</td>
+                    <td class="greytext">馆藏地</td>
+                    <td align="center" class="greytext">附件</td>
+                    <td align="center" class="greytext">续借</td>
+                </tr>
+                <tr>
+                    <td class="whitetext" width="10%">211080T0106452G</td>
+                    <td class="whitetext" width="35%"><a class="blue" href="../opac/item.php?marc_no=376f56684c364d306663795a6275734c494c6e3361673d3d">&#x68a6;&#x7684;&#x89e3;&#x6790;&#x0020;&#x8bba;&#x68a6;&#x002e;&#x7b2c;&#x0032;&#x7248;</a> / &#x0028;&#x5965;&#x0029;&#x0020;&#x897f;&#x683c;&#x8499;&#x5fb7;&#x00b7;&#x5f17;&#x6d1b;&#x4f0a;&#x5fb7;&#x8457;</td>
+                    <td class="whitetext" width="13%">2024-12-06</td>
+                    <td class="whitetext" width="13%"><font color=red>2025-06-21        </font></td>
+                    <td width="6%" align="center" class="whitetext">0</td>
+                    <td class="whitetext" width="15%">社科馆中文书库</td>
+                    <td width="13%" align="center" class="whitetext">无</td>
+                    <td width="5%" height="35" class="whitetext">
+                        <div id="1"><input title="renew" class="btn btn-success" type="button" value="续借" onclick="getInLib('211080T0106452G','15860401','1');"  disabled/>
+                        </div><div id="211080T0106452G" /></td>
+                </tr>
+                <tr>
+                    <td class="whitetext" width="10%">211080T0154379R</td>
+                    <td class="whitetext" width="35%"><a class="blue" href="../opac/item.php?marc_no=586e545770536254364c65304266566f3964346e66513d3d">&#x7cbe;&#x795e;&#x5206;&#x6790;&#x5f15;&#x8bba;</a> / &#x0028;&#x5965;&#x0029;&#x0020;&#x5f17;&#x6d1b;&#x4f0a;&#x5fb7;&#x8457;</td>
+                    <td class="whitetext" width="13%">2024-12-06</td>
+                    <td class="whitetext" width="13%"><font color=red>2025-06-21        </font></td>
+                    <td width="6%" align="center" class="whitetext">0</td>
+                    <td class="whitetext" width="15%">社科馆中文书库</td>
+                    <td width="13%" align="center" class="whitetext">无</td>
+                    <td width="5%" height="35" class="whitetext">
+                        <div id="2"><input title="renew" class="btn btn-success" type="button" value="续借" onclick="getInLib('211080T0154379R','DB3E60F8','2');"  disabled/>
+                        </div><div id="211080T0154379R" /></td>
+                </tr>
+                <tr>
+                    <td class="whitetext" width="10%">211080T0169066Q</td>
+                    <td class="whitetext" width="35%"><a class="blue" href="../opac/item.php?marc_no=4d5a774b6d3944682b436530505a4b754835344936673d3d">&#x56de;&#x5230;&#x5217;&#x5b81;&#x003a;&#x5173;&#x4e8e;&#x201c;&#x54f2;&#x5b66;&#x7b14;&#x8bb0;&#x201d;&#x7684;&#x4e00;&#x79cd;&#x540e;&#x6587;&#x672c;&#x5b66;&#x89e3;&#x8bfb;</a> / &#x5f20;&#x4e00;&#x5175;&#x8457;</td>
+                    <td class="whitetext" width="13%">2024-12-06</td>
+                    <td class="whitetext" width="13%"><font color=red>2025-06-21        </font></td>
+                    <td width="6%" align="center" class="whitetext">0</td>
+                    <td class="whitetext" width="15%">社科馆中文书库</td>
+                    <td width="13%" align="center" class="whitetext">无</td>
+                    <td width="5%" height="35" class="whitetext">
+                        <div id="3"><input title="renew" class="btn btn-success" type="button" value="续借" onclick="getInLib('211080T0169066Q','A6CFE204','3');"  disabled/>
+                        </div><div id="211080T0169066Q" /></td>
+                </tr>
+                <tr>
+                    <td class="whitetext" width="10%">211080T0296242N</td>
+                    <td class="whitetext" width="35%"><a class="blue" href="../opac/item.php?marc_no=7a724c50706a4c6175416e54345a33303732757376413d3d">&#x6b27;&#x6d32;&#x5171;&#x4ea7;&#x4e3b;&#x4e49;&#x002d;&#x5b83;&#x5728;&#x610f;&#x5927;&#x5229;&#x7b49;&#x56fd;&#x7684;&#x6e0a;&#x6e90;&#x53ca;&#x524d;&#x9014;</a> / &#x0028;&#x0029;&#x4e4c;&#x5c14;&#x73ed;&#x4e3b;&#x7f16;</td>
+                    <td class="whitetext" width="13%">2024-12-06</td>
+                    <td class="whitetext" width="13%"><font color=red>2025-06-21        </font></td>
+                    <td width="6%" align="center" class="whitetext">0</td>
+                    <td class="whitetext" width="15%">社科馆中文书库</td>
+                    <td width="13%" align="center" class="whitetext">无</td>
+                    <td width="5%" height="35" class="whitetext">
+                        <div id="4"><input title="renew" class="btn btn-success" type="button" value="续借" onclick="getInLib('211080T0296242N','03B9671A','4');"  disabled/>
+                        </div><div id="211080T0296242N" /></td>
+                </tr>
+                <tr>
+                    <td class="whitetext" width="10%">211080T0296529V</td>
+                    <td class="whitetext" width="35%"><a class="blue" href="../opac/item.php?marc_no=577132577549504b4e6f4a2b42444546594d633546673d3d">&#x9a6c;&#x514b;&#x601d;&#x4e3b;&#x4e49;&#x6982;&#x8ff0;</a> / &#x6234;&#x8ff0;&#x96e8;&#xff0c;&#x81e7;&#x4e50;&#x6e90;&#xff0c;&#x6b27;&#x662f;</td>
+                    <td class="whitetext" width="13%">2024-12-06</td>
+                    <td class="whitetext" width="13%"><font color=red>2025-06-21        </font></td>
+                    <td width="6%" align="center" class="whitetext">0</td>
+                    <td class="whitetext" width="15%">社科馆中文书库</td>
+                    <td width="13%" align="center" class="whitetext">无</td>
+                    <td width="5%" height="35" class="whitetext">
+                        <div id="5"><input title="renew" class="btn btn-success" type="button" value="续借" onclick="getInLib('211080T0296529V','7A011929','5');"  disabled/>
+                        </div><div id="211080T0296529V" /></td>
+                </tr>
+                <tr>
+                    <td class="whitetext" width="10%">211080T0297697</td>
+                    <td class="whitetext" width="35%"><a class="blue" href="../opac/item.php?marc_no=3955637247722b6366783261575473426b41586c44773d3d">&#x634d;&#x536b;&#x793e;&#x4f1a;&#x4e3b;&#x4e49;&#x5171;&#x548c;&#x56fd;</a> / </td>
+                    <td class="whitetext" width="13%">2024-12-06</td>
+                    <td class="whitetext" width="13%"><font color=red>2025-06-21        </font></td>
+                    <td width="6%" align="center" class="whitetext">0</td>
+                    <td class="whitetext" width="15%">社科馆中文书库</td>
+                    <td width="13%" align="center" class="whitetext">无</td>
+                    <td width="5%" height="35" class="whitetext">
+                        <div id="6"><input title="renew" class="btn btn-success" type="button" value="续借" onclick="getInLib('211080T0297697','0CD12293','6');"  disabled/>
+                        </div><div id="211080T0297697" /></td>
+                </tr>
+                <tr>
+                    <td class="whitetext" width="10%">211080T0297728X</td>
+                    <td class="whitetext" width="35%"><a class="blue" href="../opac/item.php?marc_no=6e32345545523959584b666554726669657a75566b673d3d">&#x60ca;&#x5fc3;&#x52a8;&#x9b44;&#x7684;&#x0035;&#x0036;&#x5929;</a> / </td>
+                    <td class="whitetext" width="13%">2024-12-06</td>
+                    <td class="whitetext" width="13%"><font color=red>2025-06-21        </font></td>
+                    <td width="6%" align="center" class="whitetext">0</td>
+                    <td class="whitetext" width="15%">社科馆中文书库</td>
+                    <td width="13%" align="center" class="whitetext">无</td>
+                    <td width="5%" height="35" class="whitetext">
+                        <div id="7"><input title="renew" class="btn btn-success" type="button" value="续借" onclick="getInLib('211080T0297728X','27722314','7');"  disabled/>
+                        </div><div id="211080T0297728X" /></td>
+                </tr>
+                <tr>
+                    <td class="whitetext" width="10%">211080T0297860U</td>
+                    <td class="whitetext" width="35%"><a class="blue" href="../opac/item.php?marc_no=6b747542776f612f714939617a424f336638486362513d3d">&#x82cf;&#x8054;&#x548c;&#x6b27;&#x6d32;&#x793e;&#x4f1a;&#x4e3b;&#x4e49;&#x56fd;&#x5bb6;&#x653f;&#x6cbb;&#x4f53;&#x5236;&#x6539;&#x9769;&#x7684;&#x7406;&#x8bba;&#x548c;&#x5b9e;&#x8df5;</a> / &#x8042;&#x8fd0;&#x6797;&#x4e3b;&#x7f16;</td>
+                    <td class="whitetext" width="13%">2024-12-06</td>
+                    <td class="whitetext" width="13%"><font color=red>2025-06-21        </font></td>
+                    <td width="6%" align="center" class="whitetext">0</td>
+                    <td class="whitetext" width="15%">社科馆中文书库</td>
+                    <td width="13%" align="center" class="whitetext">无</td>
+                    <td width="5%" height="35" class="whitetext">
+                        <div id="8"><input title="renew" class="btn btn-success" type="button" value="续借" onclick="getInLib('211080T0297860U','15265ABE','8');"  disabled/>
+                        </div><div id="211080T0297860U" /></td>
+                </tr>
+                <tr>
+                    <td class="whitetext" width="10%">211080T0298609W</td>
+                    <td class="whitetext" width="35%"><a class="blue" href="../opac/item.php?marc_no=504e37753565512f656a453968434a74486172774a673d3d">&#x6b27;&#x6d32;&#x793e;&#x4f1a;&#x4e3b;&#x4e49;&#x56fd;&#x5bb6;&#x653f;&#x6cbb;&#x4f53;&#x5236;&#x7406;&#x8bba;&#x4e0e;&#x5b9e;&#x8df5;</a> / &#x53f6;&#x626c;&#x4e3b;&#x7f16;</td>
+                    <td class="whitetext" width="13%">2024-12-06</td>
+                    <td class="whitetext" width="13%"><font color=red>2025-06-21        </font></td>
+                    <td width="6%" align="center" class="whitetext">0</td>
+                    <td class="whitetext" width="15%">社科馆中文书库</td>
+                    <td width="13%" align="center" class="whitetext">无</td>
+                    <td width="5%" height="35" class="whitetext">
+                        <div id="9"><input title="renew" class="btn btn-success" type="button" value="续借" onclick="getInLib('211080T0298609W','59B6971B','9');"  disabled/>
+                        </div><div id="211080T0298609W" /></td>
+                </tr>
+                <tr>
+                    <td class="whitetext" width="10%">211080T0302536H</td>
+                    <td class="whitetext" width="35%"><a class="blue" href="../opac/item.php?marc_no=734649547761426c6a52677961653543374c48586e673d3d">&#x4e2d;&#x56fd;&#x5f53;&#x4ee3;&#x201c;&#x7cbe;&#x82f1;&#x201d;&#x7684;&#x771f;&#x9762;&#x76ee;</a> / &#x65bd;&#x53cb;&#x7f16;</td>
+                    <td class="whitetext" width="13%">2024-12-06</td>
+                    <td class="whitetext" width="13%"><font color=red>2025-06-21        </font></td>
+                    <td width="6%" align="center" class="whitetext">0</td>
+                    <td class="whitetext" width="15%">社科馆中文书库</td>
+                    <td width="13%" align="center" class="whitetext">无</td>
+                    <td width="5%" height="35" class="whitetext">
+                        <div id="10"><input title="renew" class="btn btn-success" type="button" value="续借" onclick="getInLib('211080T0302536H','CF2D4680','10');"  disabled/>
+                        </div><div id="211080T0302536H" /></td>
+                </tr>
+                <tr>
+                    <td class="whitetext" width="10%">211080T0509964V</td>
+                    <td class="whitetext" width="35%"><a class="blue" href="../opac/item.php?marc_no=374664666f736a576259415761764b6e7a312b6165773d3d">&#x5ef6;&#x8fdf;&#x7684;&#x5426;&#x5b9a;&#x003a;&#x5eb7;&#x5fb7;&#x3001;&#x9ed1;&#x683c;&#x5c14;&#x4e0e;&#x610f;&#x8bc6;&#x5f62;&#x6001;&#x6279;&#x5224;&#x003a;&#x004b;&#x0061;&#x006e;&#x0067;&#x002c;&#x0020;&#x0048;&#x0065;&#x0067;&#x0065;&#x006c;&#x002c;&#x0020;&#x0061;&#x006e;&#x0064;&#x0020;&#x0074;&#x0068;&#x0065;&#x0020;&#x0063;&#x0072;&#x0069;&#x0074;&#x0069;&#x0071;&#x0075;&#x0065;&#x0020;&#x006f;&#x0066;&#x0020;&#x0069;&#x0064;&#x0065;&#x006f;&#x006c;&#x006f;&#x0067;&#x0079;</a> / &#x0028;&#x65af;&#x6d1b;&#x6587;&#x0029;&#x65af;&#x62c9;&#x6c83;&#x70ed;&#x00b7;&#x9f50;&#x6cfd;&#x514b;&#x8457;</td>
+                    <td class="whitetext" width="13%">2024-12-06</td>
+                    <td class="whitetext" width="13%"><font color=red>2025-06-21        </font></td>
+                    <td width="6%" align="center" class="whitetext">0</td>
+                    <td class="whitetext" width="15%">社科馆中文书库</td>
+                    <td width="13%" align="center" class="whitetext">无</td>
+                    <td width="5%" height="35" class="whitetext">
+                        <div id="11"><input title="renew" class="btn btn-success" type="button" value="续借" onclick="getInLib('211080T0509964V','4AD8779C','11');"  disabled/>
+                        </div><div id="211080T0509964V" /></td>
+                </tr>
+            </table>
+            <div style="margin-top:20px;">
+                <h2>二维码信息<strong style="color:#333;">(当前借阅信息的二维码，安装手机解码软件拍照解析后可以快速保存信息)</strong></h2>
+                <p>
+<span style="float:left; margin-right:20px;"><a href="../opac/ajax_qr.php?qrcode=6K%2B76ICF44CQMjIzMTEwMTIy44CR55qE5Zyo5YCf5Lmm5YiKKOmimOWQjS%2FlupTov5jml6XmnJ8p77yaDQrmoqbnmoTop6PmnpAg6K665qKmLuesrDLniYggMjAyNS0wNi0yMSAgICAgICAgDQrnsr7npZ7liIbmnpDlvJXorrogMjAyNS0wNi0yMSAgICAgICAgDQrlm57liLDliJflroE65YWz5LqO4oCc5ZOy5a2m56yU6K6w4oCd55qE5LiA56eN5ZCO5paH5pys5a2mLi4gMjAyNS0wNi0yMSAgICAgICAgDQrmrKfmtLLlhbHkuqfkuLvkuYkt5a6D5Zyo5oSP5aSn5Yip562J5Zu955qE5riK5rqQ5Y%2BK5YmN6YCUIDIwMjUtMDYtMjEgICAgICAgIA0K6ams5YWL5oCd5Li75LmJ5qaC6L%2BwIDIwMjUtMDYtMjEgICAgICAgIA0K5o2N5Y2r56S%2B5Lya5Li75LmJ5YWx5ZKM5Zu9IDIwMjUtMDYtMjEgICAgICAgIA0K5oOK5b%2BD5Yqo6a2E55qENTblpKkgMjAyNS0wNi0yMSAgICAgICAgDQroi4%2FogZTlkozmrKfmtLLnpL7kvJrkuLvkuYnlm73lrrbmlL%2FmsrvkvZPliLbmlLnpnannmoTnkIborrouLiAyMDI1LTA2LTIxICAgICAgICANCuasp%2Ba0suekvuS8muS4u%2BS5ieWbveWutuaUv%2Bayu%2BS9k%2BWItueQhuiuuuS4juWunui3tSAyMDI1LTA2LTIxICAgICAgICANCuS4reWbveW9k%2BS7o%2BKAnOeyvuiLseKAneeahOecn%2BmdouebriAyMDI1LTA2LTIxICAgICAgICANCuW7tui%2Fn%2BeahOWQpuWumjrlurflvrfjgIHpu5HmoLzlsJTkuI7mhI%2For4blvaLmgIHmibnliKQ6Li4gMjAyNS0wNi0yMSAgICAgICAgDQo%3D" target="_blank" title="新窗口打开">
+  	<img src="../opac/ajax_qr.php?qrcode=6K%2B76ICF44CQMjIzMTEwMTIy44CR55qE5Zyo5YCf5Lmm5YiKKOmimOWQjS%2FlupTov5jml6XmnJ8p77yaDQrmoqbnmoTop6PmnpAg6K665qKmLuesrDLniYggMjAyNS0wNi0yMSAgICAgICAgDQrnsr7npZ7liIbmnpDlvJXorrogMjAyNS0wNi0yMSAgICAgICAgDQrlm57liLDliJflroE65YWz5LqO4oCc5ZOy5a2m56yU6K6w4oCd55qE5LiA56eN5ZCO5paH5pys5a2mLi4gMjAyNS0wNi0yMSAgICAgICAgDQrmrKfmtLLlhbHkuqfkuLvkuYkt5a6D5Zyo5oSP5aSn5Yip562J5Zu955qE5riK5rqQ5Y%2BK5YmN6YCUIDIwMjUtMDYtMjEgICAgICAgIA0K6ams5YWL5oCd5Li75LmJ5qaC6L%2BwIDIwMjUtMDYtMjEgICAgICAgIA0K5o2N5Y2r56S%2B5Lya5Li75LmJ5YWx5ZKM5Zu9IDIwMjUtMDYtMjEgICAgICAgIA0K5oOK5b%2BD5Yqo6a2E55qENTblpKkgMjAyNS0wNi0yMSAgICAgICAgDQroi4%2FogZTlkozmrKfmtLLnpL7kvJrkuLvkuYnlm73lrrbmlL%2FmsrvkvZPliLbmlLnpnannmoTnkIborrouLiAyMDI1LTA2LTIxICAgICAgICANCuasp%2Ba0suekvuS8muS4u%2BS5ieWbveWutuaUv%2Bayu%2BS9k%2BWItueQhuiuuuS4juWunui3tSAyMDI1LTA2LTIxICAgICAgICANCuS4reWbveW9k%2BS7o%2BKAnOeyvuiLseKAneeahOecn%2BmdouebriAyMDI1LTA2LTIxICAgICAgICANCuW7tui%2Fn%2BeahOWQpuWumjrlurflvrfjgIHpu5HmoLzlsJTkuI7mhI%2For4blvaLmgIHmibnliKQ6Li4gMjAyNS0wNi0yMSAgICAgICAgDQo%3D" border="0" /></a></span>
+                <p>
+            </div>
+        </div>
+        <div id="dialog-form" title="续借验证码" style="display:none;">
+            <table width="95%" border="0" cellpadding="3" cellspacing="1">
+                <tr>
+                    <td align="right">验证码： </td>
+                    <td align="left"><input id="captcha" class="input" name="captcha" type="text" size="20" style="width:150px" >
+                    </td>
+                </tr>
+                <tr>
+                    <td align="right"></td>
+                    <td align="left">请输入下面显示的内容<br/><img id="img" src="captcha.php" onclick="this.src='captcha.php?'+Math.random();" height="36" width="60" /></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="clear"></div>
+    </div>
+
+    <script type="text/javascript">
+        <!--
+        function getInLib(barcode,check,num){
+            $( "#dialog-form" ).dialog({
+                autoOpen: false,
+                modal: true,
+                buttons: {
+                    "确定": function() {
+                        $(this).dialog("close");
+                        $("#" + num).load('ajax_renew.php?bar_code=' + barcode + "&check=" + check + "&captcha=" + $("#captcha").val() + "&time=" + new Date().getTime());
+                    }
+                }
+            });
+            $("#dialog-form").dialog("open");
+
+        }
+        -->
+    </script>
+    <div id="footer"><div id="copy"><p> 北京科技大学天津学院图书馆&nbsp;&nbsp; OPAC v5.6.1.220715  &nbsp;&nbsp;</p><p>&copy; 1999-2025 <a target="_blank" href="http://www.libsys.com.cn">Jiangsu Huiwen Software Ltd. 江苏汇文软件有限公司</a></p></div></div></body></html>

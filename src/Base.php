@@ -10,34 +10,63 @@ use Airmole\TjustbOpacsys\Exception\Exception;
  */
 class Base
 {
+/**
+     * @var string 默认OPAC系统URL
+     */
+    public const DEFAULT_OPACSYS_URL = 'http://10.1.254.98:82';
     /**
      * @var string OPAC系统 URL域名
      */
     public string $opacsysUrl;
-
     /**
      * @var string 代理地址
      */
     public string $proxy;
-
     /**
      * @var string 配置文件路径
      */
-    public string $configPath;
+    public string $configPath;  // http://10.1.254.98:82
 
     /**
-     * @var string 默认OPAC系统URL
+     * @var string 用户账号
      */
-    public const DEFAULT_OPACSYS_URL = 'http://10.1.254.98:82';  // http://10.1.254.98:82
+    public string $usercode;
+
+    /**
+     * @var string 用户已登录cookie
+     */
+    public string $cookie;
+
+    /**
+     * @var int 默认请求成功响应代码
+     */
+    public const CODE_SUCCESS = 200;
+
+    /**
+     * @var int 默认请求重定向响应代码
+     */
+    public const CODE_REDIRECT = 302;
 
     public function __construct()
     {
         // 设置默认配置文件
         if (empty($this->configPath)) $this->setConfigPath();
-        // 未配置教务URL 自动配置
+        // 未配置OPAC URL 自动配置
         if (empty($this->opacsysUrl)) $this->setOpacsysUrl();
         // 设置代理
         $this->proxy = $this->getConfig('OPACSYS_PROXY', '');
+    }
+
+    /**
+     * 设置配置文件路径
+     * @param string $path
+     * @return void
+     */
+    public function setConfigPath(string $path = ''): void
+    {
+        $defaultPath = $_SERVER['DOCUMENT_ROOT'] . '/../.env';
+        if ($path === '') $path = $defaultPath;
+        $this->configPath = $path;
     }
 
     /**
@@ -51,18 +80,6 @@ class Base
         $configOpacsysUrl = $this->getConfig('OPACSYS_URL', '');
         if (!empty($configOpacsysUrl)) $url = $configOpacsysUrl;
         $this->opacsysUrl = $url;
-    }
-
-    /**
-     * 设置配置文件路径
-     * @param string $path
-     * @return void
-     */
-    public function setConfigPath(string $path = ''): void
-    {
-        $defaultPath = $_SERVER['DOCUMENT_ROOT'] . '/../.env';
-        if ($path === '') $path = $defaultPath;
-        $this->configPath = $path;
     }
 
     /**
@@ -182,7 +199,7 @@ class Base
      */
     public function httpPost(
         string $url,
-        mixed $body = '',
+        mixed  $body = '',
         string $cookie = '',
         string $referer = '',
         int    $timeout = 10
@@ -234,6 +251,124 @@ class Base
         curl_close($curl);
         if ($httpCode == 0 || $httpCode == 56) throw new Exception('请求超时');
         return ['code' => (int)$httpCode, 'data' => $response];
+    }
+
+    /**
+     * HTTP请求
+     * @param string $method 请求方式
+     * @param string $url 请求URL
+     * @param mixed $body 请求体
+     * @param mixed $cookie Cookie
+     * @param array $headers 请求头
+     * @param bool $showHeaders 是否返回请求头
+     * @param bool $followLocation 是否跟随跳转
+     * @param int $timeout 超时时间
+     * @return array 响应结果
+     */
+    public function httpRequest(
+        string $method = 'GET',
+        string $url = '',
+        mixed  $body = '',
+        mixed  $cookie = '',
+        array  $headers = [],
+        bool   $showHeaders = false,
+        bool   $followLocation = false,
+        int    $timeout = 20
+    ): array
+    {
+        if (!str_starts_with($url, 'http://') && !str_starts_with($url, 'https://')) {
+            $url = $this->opacsysUrl . (str_starts_with($url, '/') ? $url : "/{$url}");
+        }
+        $url = trim($url);
+
+        $defaultHeaders = [
+            'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36',
+            'Accept-Encoding: gzip, deflate',
+            'Accept-Language: zh',
+        ];
+        $headers = array_merge($defaultHeaders, $headers);
+
+        if (is_string($cookie) && !empty($cookie)) {
+            $cookie = trim($cookie);
+            $headers[] = !str_starts_with($cookie, 'Cookie:') ? "Cookie: {$cookie}" : $cookie;
+        }
+
+        $timeout = (int)$this->getConfig('OPACSYS_TIMEOUT', $timeout);
+
+        $requestOptions = [
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => 'gzip, deflate',
+            CURLOPT_TIMEOUT => $timeout,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_FOLLOWLOCATION => $followLocation,
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => $method,
+            CURLOPT_HTTPHEADER => $headers,
+            CURLOPT_HEADER => $showHeaders,
+        ];
+
+        if (!empty($body)) {
+            $requestOptions[CURLOPT_POSTFIELDS] = is_array($body) ? http_build_query($body) : $body;
+        }
+
+        if (!empty($this->proxy)) $requestOptions[CURLOPT_PROXY] = $this->proxy;
+
+        $ch = curl_init();
+        curl_setopt_array($ch, $requestOptions);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        if ($response === false) {
+            $error = curl_error($ch);
+            curl_close($ch);
+            return ['code' => 0, 'data' => 'cURL Error: ' . $error];
+        }
+
+        curl_close($ch);
+
+        return ['code' => (int)$httpCode, 'data' => $response];
+    }
+
+    /**
+     * 从响应头中获取Cookie
+     * @param string $key Cookie名称
+     * @param string $headerString 响应头字符串
+     * @return string Cookie值
+     */
+    public function getCookieFromHeader(string $key, string $headerString = ''): string
+    {
+        preg_match("/Set-Cookie: {$key}=(.*?);/", $headerString, $cookieValue);
+        return $cookieValue[1] ?? '';
+    }
+
+    /**
+     * 从响应头中获取跳转地址
+     * @param string $header 响应头字符串
+     * @return string 跳转地址
+     */
+    public function getLocationFromRedirectHeader(string $header = ''): string
+    {
+        preg_match('/Location: (.*)/', $header, $nextUrl);
+        $nextUrl = $nextUrl[1] ?? '';
+        return trim($nextUrl);
+    }
+
+    /**
+     * 获取二维码
+     * @param string $baseString 二维码内容Base64编码
+     * @return string Base64二维码图片
+     * @throws Exception
+     */
+    public function qrcode(string $baseString = ''): string
+    {
+        $url = '/opac/ajax_qr.php?qrcode=' . $baseString;
+        $result = $this->httpRequest('GET', $url);
+        if ($result['code'] != self::CODE_SUCCESS) throw new Exception('获取二维码失败');
+        return base64_encode($result['data']);
     }
 
 }

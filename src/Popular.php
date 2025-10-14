@@ -10,11 +10,6 @@ use DiDom\Document;
  */
 class Popular extends Base
 {
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
     /**
      * 获取热门借阅和热门图书top10
      * @return array[]
@@ -27,6 +22,7 @@ class Popular extends Base
         if ($html['code'] !== 200) throw new Exception('获取失败：'. $html['code'] . $html['data']);
         $document = new Document($html['data']);
 
+        $popularLendTitle = [];
         $popularLendBooks = [];
         // 热门借阅
         if ($document->has('#search_container_right')) {
@@ -43,6 +39,7 @@ class Popular extends Base
         }
 
         // 热门图书
+        $popularBookTitle = [];
         $popularBooks = [];
         if ($document->has('#search_container_center')) {
             $popularBookTitle = $document->first('#search_container_center')->first('h3')->text();
@@ -71,11 +68,11 @@ class Popular extends Base
 
     /**
      * 获取关键词云
-     * @return array|mixed
+     * @return array
      * @throws Exception
      * @throws \DiDom\Exceptions\InvalidSelectorException
      */
-    public function keywordCloud()
+    public function keywordCloud(): array
     {
         $html = $this->httpGet('/opac/ajax_topkeywords_js_adv.php');
         if ($html['code'] !== 200) throw new Exception('获取失败：'. $html['code'] . $html['data']);
@@ -93,8 +90,11 @@ class Popular extends Base
         $jsonString = str_replace('],]', ']]', $jsonString);
         // 解码 HTML 实体
         $jsonString = html_entity_decode($jsonString, ENT_QUOTES, 'UTF-8');
-        $data = json_decode($this->stripHtmlTagAndBlankspace($jsonString), true);
-        return empty($data) ? [] : $data;
+        if (json_decode($this->stripHtmlTagAndBlankspace($jsonString), true)) {
+            return json_decode($this->stripHtmlTagAndBlankspace($jsonString), true);
+        } else {
+            return [];
+        }
     }
 
     /**
