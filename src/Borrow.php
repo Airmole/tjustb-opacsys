@@ -15,13 +15,11 @@ class Borrow extends Base
      */
     public function readingBooks(): array
     {
-//        $url = '/reader/book_lst.php';
-//        $result =$this->httpRequest('GET', $url, '', $this->cookie);
-//        if ($result['code'] != self::CODE_SUCCESS) throw new Exception('readingBooks：' . json_encode($result));
+        $url = '/reader/book_lst.php';
+        $result =$this->httpRequest('GET', $url, '', $this->cookie);
+        if ($result['code'] != self::CODE_SUCCESS) throw new Exception('readingBooks：' . json_encode($result));
 
         $bookList = [];
-
-        $result['data'] = file_get_contents('/www/tjustb-opacsys/html/test.html');
         $dom = new Document($result['data']);
 
         $tips = '';
