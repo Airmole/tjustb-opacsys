@@ -24,6 +24,11 @@ class Score extends Base
 
         $records = [];
         $dom = new Document($result['data']);
+
+        $totalPage = $dom->first('font[color=black]')->text();
+        $totalPage = $this->stripHtmlTagAndBlankspace($totalPage) ?? 0;
+        $totalPage = intval($totalPage);
+
         $tableTrs = $dom->first('table.table_line')->find('tr');
         foreach ($tableTrs as $index => $tr) {
             if ($index == 0) continue;
@@ -38,7 +43,12 @@ class Score extends Base
             ];
         }
 
-        return [ 'code' => $result['code'], 'data' => $records ];
+        return [
+            'code' => $result['code'],
+            'page' => $page,
+            'totalPage' => $totalPage,
+            'data' => $records
+        ];
     }
 
 }

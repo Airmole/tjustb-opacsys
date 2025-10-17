@@ -146,6 +146,11 @@ class Borrow extends Base
             ];
         }
 
-        return ['page' => $page, 'totalPage' => $totalPage, 'bookList' => $bookList];
+        return [
+            'code' => $result['code'],
+            'page' => $page,
+            'totalPage' => $totalPage,
+            'bookList' => $bookList
+        ];
     }
 }

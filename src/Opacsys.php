@@ -396,12 +396,12 @@ class Opacsys
     }
 
     /**
-     * 获取已登录账户资料&借阅规则
+     * 获取已登录账户统计数据
      * @param string $type
-     * @return array
+     * @return array|string
      * @throws Exception
      */
-    public function readerStatistics(string $type = 'class'): array
+    public function readerStatistics(string $type = 'class'): array|string
     {
         if (empty($this->cookie)) throw new Exception('未登录设置Cookie');
         $login = new Profile();
