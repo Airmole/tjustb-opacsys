@@ -19,7 +19,7 @@ class Login extends Base
 
         $url = "/reader/hwthau.php?ticket={$ticket}";
         $result = $this->httpRequest('GET', $url, '', '', [], true);
-        if ($result['code'] !== self::CODE_REDIRECT) throw new Exception('Login failed');
+        if ($result['code'] !== self::CODE_REDIRECT) throw new Exception('Login failed' . json_encode($result));
 
         $cookie = $this->getCookieFromHeader('PHPSESSID', $result['data']);
         if (empty($cookie)) throw new Exception('Cookie is empty');
