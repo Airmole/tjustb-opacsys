@@ -19,7 +19,8 @@ class Score extends Base
             'page' => $page
         ];
         $url = '/reader/credit_detail.php?' . http_build_query($query);
-        $result = $this->httpRequest('GET', $url, '', $this->cookie);
+        // $result = $this->httpRequest('GET', $url, '', $this->cookie);
+        $result = $this->httpGet($url, $this->cookie);
         if ($result['code'] != self::CODE_SUCCESS) throw new Exception('scoreRecord' . json_encode($result));
 
         $records = [];

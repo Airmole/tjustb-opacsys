@@ -14,7 +14,8 @@ class Profile extends Base
     public function loginedIndexProfile(): array
     {
         $url = '/reader/redr_info.php';
-        $result = $this->httpRequest('GET', $url, '', $this->cookie);
+        // $result = $this->httpRequest('GET', $url, '', $this->cookie);
+        $result = $this->httpGet($url, $this->cookie, '');
         if ($result['code'] != self::CODE_SUCCESS) throw new Exception('loginedIndexProfile：' . json_encode($result));
 
         $content = $this->stripHtmlTagAndBlankspace($result['data']);
@@ -70,7 +71,8 @@ class Profile extends Base
         if (!in_array($type, $ajaxParaArr)) throw new Exception('readerStatistics：参数错误');
 
         $url = "/reader/ajax_{$type}_sort.php";
-        $content = $this->httpRequest('GET', $url, '', $this->cookie);
+        // $content = $this->httpRequest('GET', $url, '', $this->cookie);
+        $content = $this->httpGet($url, $this->cookie);
         if ($content['code'] != self::CODE_SUCCESS) throw new Exception('readerStatistics：' . json_encode($content));
         $data = $this->stripHtmlTagAndBlankspace($content['data']);
         if (json_decode($data)) $data = json_decode($data, true);
@@ -84,7 +86,8 @@ class Profile extends Base
     public function profileRule(): array
     {
         $url = '/reader/redr_info_rule.php';
-        $result = $this->httpRequest('GET', $url, '', $this->cookie);
+        // $result = $this->httpRequest('GET', $url, '', $this->cookie);
+        $result = $this->httpGet($url, $this->cookie);
         if ($result['code'] != self::CODE_SUCCESS) throw new Exception('profileRule：' . json_encode($result));
         $content = $this->stripBlankspace($result['data']);
 
@@ -164,7 +167,8 @@ class Profile extends Base
         if (empty($ruleNo)) throw new Exception('ruleDetail：ruleNo不能为空');
 
         $url = '/reader/redr_rule_form.php?rule_no=' . $ruleNo;
-        $result = $this->httpRequest('GET', $url, '', $this->cookie);
+        // $result = $this->httpRequest('GET', $url, '', $this->cookie);
+        $result = $this->httpGet($url, $this->cookie);
         if ($result['code'] != self::CODE_SUCCESS) throw new Exception('ruleDetail：' . json_encode($result));
 
         $detail = [];

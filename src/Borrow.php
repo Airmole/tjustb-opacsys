@@ -16,7 +16,8 @@ class Borrow extends Base
     public function readingBooks(): array
     {
         $url = '/reader/book_lst.php';
-        $result =$this->httpRequest('GET', $url, '', $this->cookie);
+        // $result =$this->httpRequest('GET', $url, '', $this->cookie);
+        $result = $this->httpGet($url, $this->cookie);
         if ($result['code'] != self::CODE_SUCCESS) throw new Exception('readingBooks：' . json_encode($result));
 
         $bookList = [];
@@ -117,7 +118,8 @@ class Borrow extends Base
         ];
         $url = '/reader/book_hist.php?' . http_build_query($query);
 
-        $result =$this->httpRequest('GET', $url, '', $this->cookie);
+        // $result =$this->httpRequest('GET', $url, '', $this->cookie);
+        $result = $this->httpGet($url, $this->cookie);
         if ($result['code'] != self::CODE_SUCCESS) throw new Exception('history：' . json_encode($result));
 
         $dom = new Document($result['data']);
